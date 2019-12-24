@@ -1,7 +1,7 @@
 DEVICE     = atmega328p
 CLOCK      = 16000000
-PROGRAMMER = -c arduino -b 115200 -P COM4
-OBJECTS    = lab2.o uscid.o
+PROGRAMMER = -c arduino -b 115200 -P COM3
+OBJECTS    = speedtrap.o  lcd.o encoder.o serial.o
 FUSES      = -U hfuse:w:0xde:m -U lfuse:w:0xff:m -U efuse:w:0x05:m
 
 # Tune the lines below only if you know what you are doing:
@@ -11,6 +11,11 @@ COMPILE = avr-gcc -Wall -Os -DF_CPU=$(CLOCK) -mmcu=$(DEVICE)
 
 # symbolic targets:
 all:	main.hex
+
+speedtrap.o: speedtrap.c speedtrap.h lcd.h encoder.h
+lcd.o:       lcd.c lcd.h speedtrap.h
+encoder.o:   encoder.c encoder.h speedtrap.h
+serial.o:	 serial.c serial.h speedtrap.h
 
 .c.o:
 	$(COMPILE) -c $< -o $@
@@ -58,3 +63,6 @@ disasm:	main.elf
 
 cpp:
 	$(COMPILE) -E main.c
+
+test: test.hex
+	$(AVRDUDE) -U flash:w:test.hex:i
